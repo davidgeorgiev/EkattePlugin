@@ -17,7 +17,7 @@ function PrintInnerXls($xlsName){
 		for ($j = 1; $j <= $data->sheets[0]['numCols']; $j++) {
 			echo "\"".$data->sheets[0]['cells'][$i][$j]."\",";
 		}
-		echo "<br>";
+		echo "<br/>";
 	}
 }
 ?>

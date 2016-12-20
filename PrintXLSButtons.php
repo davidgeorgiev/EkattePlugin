@@ -16,6 +16,7 @@ function PrintXlsButtons(){
 					$noXlsFiles = 0;
 					echo '<button id="ShowFile'.$counter.'" type="button">'.$fileinfo->getFilename().'</button>';
 					echo '<script>$("#ShowFile'.$counter.'").click(function(){
+		$("#InnerFilePrintsHere").load("/wp-content/plugins/EkattePlugin/PrintLoading.php?fileToRead='.$fileinfo->getFilename().'");
 		$("#InnerFilePrintsHere").load("/wp-content/plugins/EkattePlugin/MyXLSRead.php?fileToRead='.$fileinfo->getFilename().'");
 	});</script>';
 				}
