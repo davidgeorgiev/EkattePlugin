@@ -7,7 +7,6 @@ Version: 0.1
 */
 
 
-
 function MainEkattePluginFunction(){
 	echo '<div id="DownloadExtractAndDeleteDiv">';
 	echo '<script src="/wp-content/plugins/EkattePlugin/jquery.min.js"></script>';
@@ -24,6 +23,15 @@ function MainEkattePluginFunction(){
 	});
 	</script>';
 	echo '</div>';
+	echo '<div id="ShowingXLSDATA">';
+		echo '<button width=100 height=100 id="ShowCurrentXLSs" type="button">Show me XLS files!</button>';
+		echo '<div id="XLSsHERE"></div>';
+		echo '<div id="InnerFilePrintsHere"></div>';
+	echo '</div>';
+	echo '<script>$("#ShowCurrentXLSs").click(function(){
+		$("#XLSsHERE").load("/wp-content/plugins/EkattePlugin/PrintXLSButtons.php");
+	});</script>';
+	
 }
 
 
