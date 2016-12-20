@@ -11,12 +11,10 @@ if(isset($_GET["urladdress"])){
 	}
 }
 if(isset($_GET["deletefolder"])){
-	if(DeleteDownloadFolder()==1){
+	if(DeleteDownloadFolder()){
 		echo '<p style="color:green;">The folder is deleted successfully</p>';
-	}else if(DeleteDownloadFolder()==0){
+	}else{
 		echo '<p style="color:red;">Something is gone wrong! The folder can not be deleted!</p>';
-	}else if(DeleteDownloadFolder()==2){
-		echo '<p style="color:orange;">Something is gone wrong! The folder not exists!</p>';
 	}
 }
 
