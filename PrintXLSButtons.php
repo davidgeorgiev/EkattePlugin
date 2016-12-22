@@ -14,10 +14,15 @@ function PrintXlsButtons(){
 				if(IfFilenameEndsWith($fileinfo->getFilename(),".xls")){
 					$counter++;
 					$noXlsFiles = 0;
-					echo '<button id="ShowFile'.$counter.'" type="button">'.$fileinfo->getFilename().'</button>';
+					echo '<p><button id="ShowFile'.$counter.'" type="button">'.$fileinfo->getFilename().'</button>';
+					echo '<button id="MakeTable'.$counter.'" type="button">Make table from '.$fileinfo->getFilename().'</button></p>';
 					echo '<script>$("#ShowFile'.$counter.'").click(function(){
 		$("#InnerFilePrintsHere").load("/wp-content/plugins/EkattePlugin/PrintLoading.php?fileToRead='.$fileinfo->getFilename().'");
 		$("#InnerFilePrintsHere").load("/wp-content/plugins/EkattePlugin/MyXLSRead.php?fileToRead='.$fileinfo->getFilename().'");
+	});</script>';
+					echo '<script>$("#MakeTable'.$counter.'").click(function(){
+		$("#StatCreatingTable").load("/wp-content/plugins/EkattePlugin/PrintQueryLoading.php?fileToRead='.$fileinfo->getFilename().'");		
+		$("#StatCreatingTable").load("/wp-content/plugins/EkattePlugin/CreateTable.php?fileToRead='.$fileinfo->getFilename().'");
 	});</script>';
 				}
 			}
