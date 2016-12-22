@@ -26,6 +26,7 @@ function MainEkattePluginFunction(){
 	echo '<div id="ShowingXLSDATA">';
 		echo '<button width=100 height=100 id="ShowCurrentXLSs" type="button">Show me XLS files!</button>';
 		echo '<div id="XLSsHERE"></div>';
+		echo '<div id="StatCreatingTable"></div>';
 		echo '<div id="InnerFilePrintsHere"></div>';
 	echo '</div>';
 	echo '<script>$("#ShowCurrentXLSs").click(function(){

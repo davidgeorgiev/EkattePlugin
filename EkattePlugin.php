@@ -32,6 +32,13 @@ function MainEkattePluginFunction(){
 	echo '<script>$("#ShowCurrentXLSs").click(function(){
 		$("#XLSsHERE").load("/wp-content/plugins/EkattePlugin/PrintXLSButtons.php");
 	});</script>';
+	echo '<div id="NormalizedTablesDiv">';
+	echo '<button width=100 height=100 id="CreateNormalizedTablesButton" type="button">Create normalized tables</button>';
+	echo '<div id="CreatingNormalizedTablesStatDiv"></div>';
+	echo '</div>';
+	echo '<script>$("#CreateNormalizedTablesButton").click(function(){
+		$("#CreatingNormalizedTablesStatDiv").load("/wp-content/plugins/EkattePlugin/CreateNormalizedTables.php");
+	});</script>';
 	
 }
 
