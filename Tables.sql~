@@ -64,8 +64,8 @@ U_ID int NOT NULL AUTO_INCREMENT,
 name varchar(30),
 PRIMARY KEY (U_ID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci;
-INSERT INTO EkkateTableNKindCountryOrVillage (kind_id,name) VALUES("град");
-INSERT INTO EkkateTableNKindCountryOrVillage (kind_id,name) VALUES("село");
+INSERT INTO EkkateTableNKindCountryOrVillage (name) VALUES("град");
+INSERT INTO EkkateTableNKindCountryOrVillage (name) VALUES("село");
 
 /*connecting tables*/
 CREATE TABLE EkkateTableNManicipalityAreaNumber

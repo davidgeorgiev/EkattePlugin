@@ -31,7 +31,7 @@ function InsertIntoNormalizedTables(){
 	$SettlementsCounter = 0;
 	foreach($MyResSettlements as $CurrentSettlement){
 		$SettlementsCounter++;
-		if(($SettlementsCounter > $Last)&&($SettlementsCounter<=60)){
+		if(($SettlementsCounter > $Last)&&($SettlementsCounter<=10)){
 			echo "<h1>SETTLEMENT ".$SettlementsCounter."</h1>";
 			//INSERTING SETTLEMENT
 			$EverythingIsOk = 1;
@@ -101,6 +101,7 @@ function InsertIntoNormalizedTables(){
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
+			//
 		}
 	}
 }

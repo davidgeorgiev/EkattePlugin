@@ -101,6 +101,7 @@ function InsertIntoNormalizedTables(){
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
+			//
 		}
 	}
 }

@@ -52,7 +52,7 @@ PRIMARY KEY (U_ID)
 
 CREATE TABLE EkkateTableNDocument
 (
-U_ID int NOT NULL AUTO_INCREMENT,
+U_ID int NOT NULL,
 name varchar(255),
 doc_date DATE,
 PRIMARY KEY (U_ID)
