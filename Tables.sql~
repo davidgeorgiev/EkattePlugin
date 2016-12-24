@@ -61,12 +61,11 @@ PRIMARY KEY (U_ID)
 CREATE TABLE EkkateTableNKindCountryOrVillage
 (
 U_ID int NOT NULL AUTO_INCREMENT,
-kind_id BIT,
 name varchar(30),
 PRIMARY KEY (U_ID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci;
-INSERT INTO EkkateTableNKindCountryOrVillage (kind_id,name) VALUES(false,"град");
-INSERT INTO EkkateTableNKindCountryOrVillage (kind_id,name) VALUES(true,"село");
+INSERT INTO EkkateTableNKindCountryOrVillage (kind_id,name) VALUES("град");
+INSERT INTO EkkateTableNKindCountryOrVillage (kind_id,name) VALUES("село");
 
 /*connecting tables*/
 CREATE TABLE EkkateTableNManicipalityAreaNumber
