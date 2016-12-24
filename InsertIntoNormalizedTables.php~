@@ -101,7 +101,45 @@ function InsertIntoNormalizedTables(){
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
-			//
+			//CHECKING IF DOCUMENT EXISTS
+			$EverythingIsOk = 1;
+			$sql = "SELECT * FROM EkkateTableNDocument WHERE U_ID = ".$CurrentSettlement->document.";";
+			$MyRes = $wpdb->get_results($sql);
+			if (is_null($MyRes) || !empty($wpdb->last_error)) {
+				$EverythingIsOk = 0;
+			}
+			FeedBack($EverythingIsOk,$sql);
+			$ifdocumentexists = count($MyRes);
+			//GETTING NEEDED DOCUMENT
+			$EverythingIsOk = 1;
+			$sql = "SELECT document,doc_date,doc_name FROM EkattePluginTempEk_doc WHERE document ='".$CurrentSettlement->document."';";
+			$MyRes = $wpdb->get_results($sql);
+			if (is_null($MyRes) || !empty($wpdb->last_error)) {
+				$EverythingIsOk = 0;
+			}
+			FeedBack($EverythingIsOk,$sql);
+			$mydocument = $MyRes[0]->document;
+			$mydocumentdate = $MyRes[0]->doc_date;
+			$mydocumentname = $MyRes[0]->doc_name;
+			//INSERT DOCUMENT IF NEEDED
+			$EverythingIsOk = 1;
+			if(!$ifdocumentexists){
+				$sql = "INSERT INTO EkkateTableNDocument (U_ID,name,doc_date) VALUES(".$mydocument.",".$mydocumentname.",".$mydocumentdate.");";
+				$MyRes = $wpdb->get_results($sql);
+				if (is_null($MyRes) || !empty($wpdb->last_error)) {
+					$EverythingIsOk = 0;
+				}
+				FeedBack($EverythingIsOk,$sql);
+				$ifdocumentexists = count($MyRes);
+			}
+			//CONNECTING DOCUMENT
+			$EverythingIsOk = 1;
+			$sql = "INSERT INTO EkkateTableNDocumentSettlement (document_id,settlement_id) VALUES(".$CurrentSettlement->document.",".$InsertedSettlementId.");";
+			$MyRes = $wpdb->get_results($sql);
+			if (is_null($MyRes) || !empty($wpdb->last_error)) {
+				$EverythingIsOk = 0;
+			}
+			FeedBack($EverythingIsOk,$sql);
 		}
 	}
 }
