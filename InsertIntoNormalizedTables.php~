@@ -47,6 +47,14 @@ function DocumentCreateIfNotExists($documentid){
 		}
 }
 
+function PrintTitleOfTheQuery($title){
+	echo "<h2 style='color:brown;'>".$title."</h2>";
+}
+
+function PrintSettlementNumber($SettlementsCounter){
+	echo "<h1>SETTLEMENT ".$SettlementsCounter."</h1>";
+}
+
 function InsertIntoNormalizedTables(){
 	global $wpdb;
 	$Last = 0;
@@ -62,22 +70,54 @@ function InsertIntoNormalizedTables(){
 		}
 		$Last = $max;
 	}
-	$MyResSettlements = $wpdb->get_results("SELECT DISTINCT(name),abc,ekatte,oblast,obstina,tsb,document,t_v_m FROM EkattePluginTempEk_atte WHERE abc != '';");
+	$MyResSettlements = $wpdb->get_results("SELECT name,abc,ekatte,oblast,obstina,tsb,document,t_v_m FROM EkattePluginTempEk_atte WHERE abc != '';");
 	$SettlementsCounter = 0;
 	foreach($MyResSettlements as $CurrentSettlement){
 		$SettlementsCounter++;
-		if(($SettlementsCounter >= $Last)&&($SettlementsCounter<=450)){
-			echo "<h1>SETTLEMENT ".$SettlementsCounter."</h1>";
-			//CHECK IF SETTLEMENT EXISTS
+		if(($SettlementsCounter >= $Last)&&($SettlementsCounter<=20)){
+			PrintSettlementNumber($SettlementsCounter);
+			
+			PrintTitleOfTheQuery("CHECK IF SETTLEMENT IF EXISTS");//CHECK IF SETTLEMENT IF EXISTS
 			$EverythingIsOk = 1;
-			$sql = "SELECT * FROM EkatteTableNSettlement WHERE name = '".$CurrentSettlement->name."';";
+			$sql = "SELECT * FROM EkatteTableNSettlement WHERE ekatte = ".$CurrentSettlement->ekatte.";";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
-			$ifsettlementexists = count($MyRes);
-			//INSERTING SETTLEMENT
+			$ifSettlementExists = count($MyRes);
+			
+			
+			if($ifSettlementExists&&$EverythingIsOk){
+				PrintTitleOfTheQuery("GET UID OF THE SETTLEMENT TO DELETE");//GET UID OF THE SETTLEMENT TO DELETE
+				$EverythingIsOk = 1;
+				$sql = "SELECT * FROM EkatteTableNSettlement WHERE ekatte = ".$CurrentSettlement->ekatte.";";
+				$MyRes = $wpdb->get_results($sql);
+				if (is_null($MyRes) || !empty($wpdb->last_error)) {
+					$EverythingIsOk = 0;
+				}
+				FeedBack($EverythingIsOk,$sql);
+				$IdOfTheSettlementToDelete = $MyRes[0]->U_ID; 
+				
+				PrintTitleOfTheQuery("DELETE CONNECTION SETTLEMENT-MANICIPALITY IF EXISTS");//DELETE CONNECTION SETTLEMENT-MANICIPALITY IF EXISTS
+				$EverythingIsOk = 1;
+				$sql = "DELETE FROM EkatteTableNManicipalitySettlement WHERE settlement_id = ".$IdOfTheSettlementToDelete.";";
+				$MyRes = $wpdb->get_results($sql);
+				if (is_null($MyRes) || !empty($wpdb->last_error)) {
+					$EverythingIsOk = 0;
+				}
+				FeedBack($EverythingIsOk,$sql);
+				
+				PrintTitleOfTheQuery("DELETE SETTLEMENT IF EXISTS");//DELETE SETTLEMENT IF EXISTS
+				$EverythingIsOk = 1;
+				$sql = "DELETE FROM EkatteTableNSettlement WHERE U_ID = ".$IdOfTheSettlementToDelete.";";
+				$MyRes = $wpdb->get_results($sql);
+				if (is_null($MyRes) || !empty($wpdb->last_error)) {
+					$EverythingIsOk = 0;
+				}
+				FeedBack($EverythingIsOk,$sql);
+			}
+			PrintTitleOfTheQuery("INSERTING SETTLEMENT");//INSERTING SETTLEMENT
 			$EverythingIsOk = 1;
 			$sql = "INSERT INTO EkatteTableNSettlement (name,ekatte) VALUES('".$CurrentSettlement->name."',".$CurrentSettlement->ekatte.")";
 			$MyRes = $wpdb->get_results($sql);
@@ -86,87 +126,26 @@ function InsertIntoNormalizedTables(){
 			}
 			FeedBack($EverythingIsOk,$sql);
 			$InsertedSettlementId = $wpdb->insert_id;
-			//INSERTING KIND
-			$sql = "";
+			
+			
+			PrintTitleOfTheQuery("GETTING REAL AREA");//GETTING REAL AREA
+			$realarea = preg_replace("/[^A-Z]/","",$CurrentSettlement->obstina);
+			
+			
+			PrintTitleOfTheQuery("CHECK IF AREA EXISTS");//CHECK IF AREA EXISTS
 			$EverythingIsOk = 1;
-			if(strpos($CurrentSettlement->t_v_m, 'с') !== false){
-				$sql = "INSERT INTO EkatteTableNSettlementKind (kind_id, settlement_id) VALUES (2,".$InsertedSettlementId.")";
-			}else if(strpos($CurrentSettlement->t_v_m, 'гр') !== false){
-				$sql = "INSERT INTO EkatteTableNSettlementKind (kind_id, settlement_id) VALUES (1,".$InsertedSettlementId.")";
-			}
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			FeedBack($EverythingIsOk,$sql);
-			//GETTING NEEDED TSB
-			$EverythingIsOk = 1;
-			$sql = "SELECT tsb,name FROM EkattePluginTempEk_tsb WHERE tsb ='".$CurrentSettlement->tsb."'";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			FeedBack($EverythingIsOk,$sql);
-			$mytsb = $MyRes[0]->tsb;
-			$mytsbname = $MyRes[0]->name;
-			//CHECKING IF TSB EXISTS
-			$EverythingIsOk = 1;
-			$sql = "SELECT * FROM EkatteTableNTSB WHERE name = '".$mytsbname."';";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			$IfExists = count($MyRes);
-			FeedBack($EverythingIsOk,$sql);
-			//INSERTING TSB
-			if(!$IfExists){
-				$EverythingIsOk = 1;
-				$sql = "INSERT INTO EkatteTableNTSB (name,curtailment) VALUES('".$mytsbname."','".$mytsb."')";
-				$MyRes = $wpdb->get_results($sql);
-				if (is_null($MyRes) || !empty($wpdb->last_error)) {
-					$EverythingIsOk = 0;
-				}
-				FeedBack($EverythingIsOk,$sql);
-			}
-			//SELECT TSB UID
-			$EverythingIsOk = 1;
-			$sql = "SELECT U_ID FROM EkatteTableNTSB WHERE name = '".$mytsbname."';";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			$TSBUID = $MyRes[0]->U_ID;
-			FeedBack($EverythingIsOk,$sql);
-			//CONNECT TSB AND SETTLEMENT
-			$EverythingIsOk = 1;
-			$sql = "INSERT INTO EkatteTableNSettlementTSB (tsb_id, settlement_id) VALUES(".$TSBUID.",".$InsertedSettlementId.");";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			FeedBack($EverythingIsOk,$sql);
-			//CREATING DOCUMENT IF NOT EXISTS
-			DocumentCreateIfNotExists($CurrentSettlement->document);
-			//CONNECTING DOCUMENT
-			$EverythingIsOk = 1;
-			$sql = "INSERT INTO EkatteTableNDocumentSettlement (document_id,settlement_id) VALUES(".$CurrentSettlement->document.",".$InsertedSettlementId.");";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			FeedBack($EverythingIsOk,$sql);
-			//CHECK IF AREA EXISTS
-			$EverythingIsOk = 1;
-			$sql = "SELECT * FROM EkatteTableNArea WHERE curtailment='".$CurrentSettlement->oblast."';";
+			$sql = "SELECT * FROM EkatteTableNArea WHERE curtailment='".$realarea."';";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
 			$ifareaexists = count($MyRes);
-			//GET NEEDED AREA
+			
+			
+			PrintTitleOfTheQuery("GET NEEDED AREA");//GET NEEDED AREA
 			$EverythingIsOk = 1;
-			$sql = "SELECT * FROM EkattePluginTempEk_ob WHERE oblast='".$CurrentSettlement->oblast."';";
+			$sql = "SELECT * FROM EkattePluginTempEk_ob WHERE oblast='".$realarea."';";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
@@ -175,28 +154,34 @@ function InsertIntoNormalizedTables(){
 			$areaname = $MyRes[0]->name;
 			$areaekatte = $MyRes[0]->ekatte;
 			$areadocument = $MyRes[0]->document;
-			//INSERT AREA IF NEEDED
+			
+			
+			PrintTitleOfTheQuery("INSERT AREA IF NEEDED");//INSERT AREA IF NEEDED
 			$EverythingIsOk = 1;
 			if(!$ifareaexists){
-				$sql = "INSERT INTO EkatteTableNArea (name,ekatte,curtailment) VALUES('".$areaname."',".$areaekatte.",'".$CurrentSettlement->oblast."');";
+				$sql = "INSERT INTO EkatteTableNArea (name,ekatte,curtailment) VALUES('".$areaname."',".$areaekatte.",'".$realarea."');";
 				$MyRes = $wpdb->get_results($sql);
 				if (is_null($MyRes) || !empty($wpdb->last_error)) {
 					$EverythingIsOk = 0;
 				}
 				FeedBack($EverythingIsOk,$sql);
 			}
-			//SELECT UID OF THE AREA
+			
+			
+			PrintTitleOfTheQuery("SELECT UID OF THE AREA");//SELECT UID OF THE AREA
 			$EverythingIsOk = 1;
-			$sql = "SELECT U_ID FROM EkatteTableNArea WHERE curtailment='".$CurrentSettlement->oblast."';";
+			$sql = "SELECT U_ID FROM EkatteTableNArea WHERE curtailment='".$realarea."';";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
 			$areaid = $MyRes[0]->U_ID;
-			//GET NAME AND EKATTE AND DOCUMENT OF THE MANICIPALITY
+			
+			
+			PrintTitleOfTheQuery("GET NAME AND EKATTE OF THE MANICIPALITY");//GET NAME AND EKATTE OF THE MANICIPALITY
 			$EverythingIsOk = 1;
-			$sql = "SELECT name,ekatte,document FROM EkattePluginTempEk_obst WHERE obstina='".$CurrentSettlement->obstina."';";
+			$sql = "SELECT name,ekatte FROM EkattePluginTempEk_obst WHERE obstina='".$CurrentSettlement->obstina."';";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
@@ -204,65 +189,72 @@ function InsertIntoNormalizedTables(){
 			FeedBack($EverythingIsOk,$sql);
 			$manicipalityname = $MyRes[0]->name;
 			$manicipalityekatte = $MyRes[0]->ekatte;
-			$manicipalitydocument = $MyRes[0]->document;
-			//CHECK IF MANICIPALITY EXISTS
+			
+			
+			PrintTitleOfTheQuery("CHECK IF MANICIPALITY EXISTS");//CHECK IF MANICIPALITY EXISTS
 			$EverythingIsOk = 1;
-			$sql = "SELECT * FROM EkatteTableNManicipality WHERE name='".$manicipalityname."';";
+			$sql = "SELECT * FROM EkatteTableNManicipality WHERE ekatte = ".$manicipalityekatte.";";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
 			$ifmanicipalityexists = count($MyRes);
-			//INSERT MANICIPALITY IF NEEDED
-			$EverythingIsOk = 1;
-			$sql = "INSERT INTO EkatteTableNManicipality (name,ekatte) VALUES('".$manicipalityname."',".$manicipalityekatte.");";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
+			
+			
+			PrintTitleOfTheQuery("INSERT MANICIPALITY IF NEEDED");//INSERT MANICIPALITY IF NEEDED
+			if(!$ifmanicipalityexists){
+				$EverythingIsOk = 1;
+				$sql = "INSERT INTO EkatteTableNManicipality (name,ekatte) VALUES('".$manicipalityname."',".$manicipalityekatte.");";
+				$MyRes = $wpdb->get_results($sql);
+				if (is_null($MyRes) || !empty($wpdb->last_error)) {
+					$EverythingIsOk = 0;
+				}
+				FeedBack($EverythingIsOk,$sql);
 			}
-			FeedBack($EverythingIsOk,$sql);
-			//GET MANICIPALITY UID
+			
+			
+			PrintTitleOfTheQuery("GET MANICIPALITY UID");//GET MANICIPALITY UID
 			$EverythingIsOk = 1;
-			$sql = "SELECT U_ID FROM EkatteTableNManicipality WHERE name = '".$manicipalityname."';";
+			$sql = "SELECT U_ID FROM EkatteTableNManicipality WHERE ekatte = '".$manicipalityekatte."';";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
 			$manicipalityid = $MyRes[0]->U_ID;
-			//GETTING NUMBER OF THE MANICIPALITY
+			
+			
+			PrintTitleOfTheQuery("GETTING NUMBER OF THE MANICIPALITY");//GETTING NUMBER OF THE MANICIPALITY
 			$manicipalitynumber = preg_replace("/[^0-9]/","",$CurrentSettlement->obstina);
-			//CONNECTING MANICIPALITY AND AREA
+			
+			
+			PrintTitleOfTheQuery("CHECK IF CONNECTION MANICIPALITY - AREA IS EXISTS");//CHECK IF CONNECTION MANICIPALITY - AREA IS EXISTS
 			$EverythingIsOk = 1;
-			$sql = "INSERT INTO EkatteTableNManicipalityAreaNumber(manicipality_id,area_id,manicipality_number) VALUES(".$manicipalityid.",".$areaid.",".$manicipalitynumber.");";
+			$sql = "SELECT * FROM EkatteTableNManicipalityAreaNumber WHERE manicipality_id=".$manicipalityid." AND area_id=".$areaid." AND manicipality_number=".$manicipalitynumber.";";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;
 			}
 			FeedBack($EverythingIsOk,$sql);
-			//CONNECTING MANICIPALITY AND SETTLEMENT
+			$ifconnectionmanicipalityareaexists = count($MyRes);
+			
+			
+			PrintTitleOfTheQuery("CONNECTING MANICIPALITY AND AREA");//CONNECTING MANICIPALITY AND AREA
+			if(!$ifconnectionmanicipalityareaexists){
+				$EverythingIsOk = 1;
+				$sql = "INSERT INTO EkatteTableNManicipalityAreaNumber(manicipality_id,area_id,manicipality_number) VALUES(".$manicipalityid.",".$areaid.",".$manicipalitynumber.");";
+				$MyRes = $wpdb->get_results($sql);
+				if (is_null($MyRes) || !empty($wpdb->last_error)) {
+					$EverythingIsOk = 0;
+				}
+				FeedBack($EverythingIsOk,$sql);
+			}
+			
+			
+			PrintTitleOfTheQuery("CONNECTING MANICIPALITY AND SETTLEMENT");//CONNECTING MANICIPALITY AND SETTLEMENT
 			$EverythingIsOk = 1;
 			$sql = "INSERT INTO EkatteTableNManicipalitySettlement(manicipality_id,settlement_id) VALUES(".$manicipalityid.",".$InsertedSettlementId.");";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			FeedBack($EverythingIsOk,$sql);
-			
-			DocumentCreateIfNotExists($manicipalitydocument);
-			DocumentCreateIfNotExists($areadocument);
-			//CONNECTING DOCUMENT TO MANICIPALITY
-			$EverythingIsOk = 1;
-			$sql = "INSERT INTO EkatteTableNDocumentManicipality (document_id,manicipality_id) VALUES(".$CurrentSettlement->document.",".$manicipalityid.");";
-			$MyRes = $wpdb->get_results($sql);
-			if (is_null($MyRes) || !empty($wpdb->last_error)) {
-				$EverythingIsOk = 0;
-			}
-			FeedBack($EverythingIsOk,$sql);
-			//CONNECTING DOCUMENT TO AREA
-			$EverythingIsOk = 1;
-			$sql = "INSERT INTO EkatteTableNDocumentArea (document_id,area_id) VALUES(".$CurrentSettlement->document.",".$areaid.");";
 			$MyRes = $wpdb->get_results($sql);
 			if (is_null($MyRes) || !empty($wpdb->last_error)) {
 				$EverythingIsOk = 0;

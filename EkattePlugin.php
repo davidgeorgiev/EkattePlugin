@@ -48,6 +48,15 @@ function MainEkattePluginFunction(){
 		$("#InsertIntoNormalizedTablesStatDiv").load("/wp-content/plugins/EkattePlugin/PrintInsertNormalizingLoading.php");
 		$("#InsertIntoNormalizedTablesStatDiv").load("/wp-content/plugins/EkattePlugin/InsertIntoNormalizedTables.php");
 	});</script>';
+	echo '<div id="MainStatsDiv">';
+	echo '<button width=100 height=100 id="ShowStatsNTButton" type="button">Show stats about normalized tables</button>';
+	echo '<div id="StatsAboutNormalizedTablesDiv"></div>';
+	echo '<script>$("#ShowStatsNTButton").click(function(){
+		$("#StatsAboutNormalizedTablesDiv").load("/wp-content/plugins/EkattePlugin/ShowStatsAboutNormalizedTables.php");
+	});</script>';
+	echo '</div>';
+
+	
 	
 }
 
